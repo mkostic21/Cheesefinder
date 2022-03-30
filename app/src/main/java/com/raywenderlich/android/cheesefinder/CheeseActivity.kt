@@ -32,6 +32,8 @@ package com.raywenderlich.android.cheesefinder
 
 import android.text.Editable
 import android.text.TextWatcher
+import io.reactivex.BackpressureStrategy
+import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -54,14 +56,15 @@ class CheeseActivity : BaseSearchActivity() {
         super.onStart()
 
         val buttonClickStream = createButtonClickObservable()
+            .toFlowable(BackpressureStrategy.LATEST)
+
         val textChangeStream = createTextChangeObservable()
-        val searchTextObservable = Observable.merge<String>(buttonClickStream, textChangeStream)
+            .toFlowable(BackpressureStrategy.BUFFER)
 
+        val searchTextFlowable = Flowable.merge<String>(buttonClickStream, textChangeStream)
 
-        searchTextObservable
-            // 1
+        searchTextFlowable
             .observeOn(AndroidSchedulers.mainThread())
-            // 2
             .doOnNext { showProgress() }
             .observeOn(Schedulers.io())
             .map { cheeseSearchEngine.search(it)!! }
