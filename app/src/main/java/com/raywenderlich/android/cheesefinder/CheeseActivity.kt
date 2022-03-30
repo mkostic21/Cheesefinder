@@ -41,6 +41,7 @@ import kotlinx.android.synthetic.main.activity_cheeses.*
 import java.util.concurrent.TimeUnit
 
 class CheeseActivity : BaseSearchActivity() {
+
     private fun createButtonClickObservable(): Observable<String> {
         return Observable.create { emitter ->
             searchButton.setOnClickListener {
